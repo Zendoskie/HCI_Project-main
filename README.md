@@ -61,7 +61,7 @@ tasktracker/
 
 4. **Start Development Server**:
    ```bash
-   python manage.py runserver
+  python3 manage.py runserver
    ```
 
 5. **Access the Application**:
@@ -127,7 +127,7 @@ python manage.py makemigrations
 python manage.py migrate
 
 # 4. Start the development server
-python manage.py runserver
+python3 manage.py runserver
 
 # 5. Open browser and visit
 # http://127.0.0.1:8000/
