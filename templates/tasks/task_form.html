@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Task - {{ app_name }}{% endblock %}
+
+{% block page_title %}
+<h2>Edit Task</h2>
+<p class="view-description">Update the task details below.</p>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <form method="post" class="task-form">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="{{ form.title.id_for_label }}">{{ form.title.label }}</label>
+            {{ form.title }}
+            {% if form.title.errors %}
+                <div class="error-messages">
+                    {% for error in form.title.errors %}
+                        <span class="error">{{ error }}</span>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            <small class="form-text">{{ form.title.help_text }}</small>
+        </div>
+        
+        <div class="form-group">
+            <div class="form-check">
+                {{ form.completed }}
+                <label class="form-check-label" for="{{ form.completed.id_for_label }}">
+                    {{ form.completed.label }}
+                </label>
+            </div>
+            {% if form.completed.errors %}
+                <div class="error-messages">
+                    {% for error in form.completed.errors %}
+                        <span class="error">{{ error }}</span>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Update Task</button>
+            <a href="{% url 'tasks:task_list' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

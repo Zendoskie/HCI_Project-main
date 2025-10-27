@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load task_extras %}
+
+{% block title %}Statistics Dashboard - {{ app_name }}{% endblock %}
+
+{% block page_title %}
+<h2>{{ view_type }}</h2>
+<p class="view-description">Comprehensive overview of your task management performance.</p>
+{% endblock %}
+
+{% block content %}
+<!-- Main Statistics Grid -->
+<div class="stats-dashboard">
+    <div class="stats-grid-large">
+        <div class="stat-card primary">
+            <div class="stat-icon">📊</div>
+            <div class="stat-content">
+                <span class="stat-number">{{ total_tasks }}</span>
+                <span class="stat-label">Total Tasks</span>
+            </div>
+        </div>
+        
+        <div class="stat-card success">
+            <div class="stat-icon">✅</div>
+            <div class="stat-content">
+                <span class="stat-number">{{ completed_tasks }}</span>
+                <span class="stat-label">Completed</span>
+            </div>
+        </div>
+        
+        <div class="stat-card warning">
+            <div class="stat-icon">⏳</div>
+            <div class="stat-content">
+                <span class="stat-number">{{ pending_tasks }}</span>
+                <span class="stat-label">Pending</span>
+            </div>
+        </div>
+        
+        <div class="stat-card info">
+            <div class="stat-icon">🎯</div>
+            <div class="stat-content">
+                <span class="stat-number">{{ completion_rate }}%</span>
+                <span class="stat-label">Completion Rate</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Progress Bar -->
+<div class="progress-container">
+    <h3>Overall Progress</h3>
+    <div class="progress-bar">
+        <div class="progress-fill" style="width: {{ completion_rate }}%"></div>
+    </div>
+    <p class="progress-text">{{ completed_tasks }} of {{ total_tasks }} tasks completed</p>
+</div>
+
+<!-- Recent Activity -->
+<div class="recent-activity">
+    <h3>Recent Activity</h3>
+    <div class="activity-grid">
+        <div class="activity-card">
+            <h4>📈 This Week</h4>
+            <div class="activity-stats">
+                <div class="activity-item">
+                    <span class="activity-number">{{ recent_created }}</span>
+                    <span class="activity-label">Tasks Created</span>
+                </div>
+                <div class="activity-item">
+                    <span class="activity-number">{{ recent_completed }}</span>
+                    <span class="activity-label">Tasks Completed</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="activity-card">
+            <h4>🕒 Recent Tasks</h4>
+            {% if recent_tasks %}
+                <div class="recent-tasks-list">
+                    {% for task in recent_tasks %}
+                        <div class="recent-task-item">
+                            <span class="task-status-icon">
+                                {% if task.completed %}✅{% else %}❌{% endif %}
+                            </span>
+                            <span class="task-title">{{ task.title|truncatechars:30 }}</span>
+                            <span class="task-date">{{ task.created_at|date:"M d" }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="no-data">No recent tasks</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- API Information -->
+<div class="api-info">
+    <h3>API Endpoint</h3>
+    <div class="api-demo">
+        <p>Raw JSON data available at:</p>
+        <div class="api-url">
+            <code>GET /api/stats/</code>
+            <button onclick="fetchStats()" class="btn btn-sm btn-primary">Test API</button>
+        </div>
+        <div id="api-response" class="api-response"></div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="quick-actions">
+    <h3>Quick Actions</h3>
+    <div class="action-buttons">
+        <a href="{% url 'tasks:task_list' %}" class="btn btn-primary">View All Tasks</a>
+        <a href="{% url 'tasks:task_list_cbv' %}" class="btn btn-secondary">Class-Based View</a>
+        <a href="{% url 'tasks:task_list' %}" class="btn btn-success">Add New Task</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function fetchStats() {
+    fetch('/api/stats/')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('api-response').innerHTML = 
+                '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+        })
+        .catch(error => {
+            document.getElementById('api-response').innerHTML = 
+                '<p class="error">Error fetching data: ' + error + '</p>';
+        });
+}
+
+// Auto-refresh stats every 30 seconds
+setInterval(function() {
+    if (document.getElementById('api-response').innerHTML) {
+        fetchStats();
+    }
+}, 30000);
+</script>
+{% endblock %}
